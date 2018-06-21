@@ -1,9 +1,110 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<iframe id="quiz2" src="file/index.html" class="slide_show" width="800px" height="450px"></iframe>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <iframe id="quiz2" src="file/index.html" class="slide_show" width="800px" height="430px"></iframe>
 </head>
-<body>
-
+<body id="body">
+    <script>
+    var time=30;
+    var status=0;
+    rowStatus=1;
+    $('document').ready(function(){
+        iframe = document.getElementById('quiz2');
+        $('#quiz2').on('load',function(){
+            setTimeout(function(){
+                clickEvent();
+                clickReturn();
+                if(rowStatus==1) clickRow();
+            },500); 
+        });                    
+    });
+    function changeToRuby(){
+        status=0;
+        var spans = $('#quiz2').contents().find('span');
+        var n = spans.length;
+        for(var i=0;i<n;i++){
+            var str=spans[i].textContent;
+            var str1=str;
+            var patt1 = /\[(.*?)\]/; 
+            var matches = str.match(patt1);
+            while(matches!=null){
+                new_str = matches[0];
+                var new_str = new_str.replace("[", "<ruby>");
+                new_str = new_str.replace("]", "</ruby>");
+                new_str = new_str.replace("(", "<rt>");
+                new_str = new_str.replace(")", "</rt>");
+                str1 = str1.replace(matches[0],new_str);
+                str = str.replace(matches[0],"");
+                matches = str.match(patt1);
+                spans[i].innerHTML = str1; 
+                status++;
+            }                       
+        }
+    }
+    function clickButton(nameButton){//button start, prev, next, review
+        var X=$('#quiz2').contents().find('div.bottom_panel');
+        var nameOfBut="button.component_base."+nameButton;
+        var idOfBut="component_base_"+nameButton;
+        var nameID="button#"+idOfBut;
+        if($(X.find(nameOfBut)[0]).prop('id')!=idOfBut){
+            X.find(nameOfBut)[0].setAttribute("id", idOfBut);
+        }
+        X.find(nameID)[0].addEventListener('click',function(){
+            // status=0;
+            var checkTime=setInterval(function(){
+                changeToRuby();
+                if (status==0) clearInterval(checkTime);
+            } ,time);                        
+        });
+    }
+    function clickReturn(){//button yes, no of div.quiz_message_box
+        var B=$('#quiz2').contents().find('div.quiz_message_box');
+        B.find('button.component_base')[0].addEventListener('click',function(){
+            // status=0;
+            var checkTime=setInterval(function(){
+                clickEvent();
+                if(rowStatus==1) clickRow();
+                if (status==0) clearInterval(checkTime);;
+            } ,time); 
+        });
+        B.find('button.component_base')[1].addEventListener('click',function(){
+            // status=0;
+            var checkTime=setInterval(function(){
+                clickEvent();
+                if(rowStatus==1) clickRow();    
+                if (status==0) clearInterval(checkTime);          
+            } ,time); 
+        });
+    };
+    function clickRow(){
+        var X=$('#quiz2').contents().find('button.component_base.show_slides');
+        X[0].addEventListener('click',function(){ 
+            rowStatus=0;
+            setTimeout(function(){
+                var T=$('#quiz2').contents().find('div.row');
+                N=T.length;
+                // console.log('N='+N);
+                for(i=0;i<N;i++){
+                    T[i].addEventListener('click',function(){
+                        status=0;
+                        checkTime=setInterval(function(){
+                            clickEvent();
+                            if (status==0) clearInterval(checkTime);
+                        } ,time); 
+                    });
+                } 
+            },100);
+                 
+        });    
+    }
+    function clickEvent(){
+        changeToRuby();
+        clickButton("start");
+        clickButton("prev");
+        clickButton("next");
+        clickButton("review");
+    }
+    </script>
 </body>
 </html>
