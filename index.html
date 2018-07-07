@@ -2,26 +2,32 @@
 <html>
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <iframe id="quiz2" src="file/index.html" class="slide_show" width="800px" height="430px"></iframe>
+    
 </head>
 <body id="body">
+    <iframe id="quiz2" src="file/index.html" class="slide_show" width="800px" height="430px"></iframe>
+    <iframe id="quiz3" src="file/index.html" class="slide_show" width="800px" height="430px"></iframe>
+    <iframe id="quiz4" src="file/index.html" class="slide_show" width="800px" height="430px"></iframe>
+    <iframe id="quiz5" src="file/index.html" class="slide_show" width="800px" height="430px"></iframe>
     <script>
     var time=30;
     var status=0;
-    rowStatus=1;
+    var rowStatus=1;
     $('document').ready(function(){
-        iframe = document.getElementById('quiz2');
-        $('#quiz2').on('load',function(){
+        iframe = document.getElementsByClassName('slide_show');
+        // console.log(iframe)
+        // console.log(iframe.length)
+        $('.slide_show').on('load',function(){
             setTimeout(function(){
                 clickEvent();
                 clickReturn();
                 if(rowStatus==1) clickRow();
             },500); 
-        });                    
+        });                  
     });
     function changeToRuby(){
         status=0;
-        var spans = $('#quiz2').contents().find('span');
+        var spans = $('.slide_show').contents().find('span');
         var n = spans.length;
         for(var i=0;i<n;i++){
             var str=spans[i].textContent;
@@ -38,65 +44,74 @@
                 str = str.replace(matches[0],"");
                 matches = str.match(patt1);
                 spans[i].innerHTML = str1; 
-                status++;
+                status=1;
             }                       
         }
     }
     function clickButton(nameButton){//button start, prev, next, review
-        var X=$('#quiz2').contents().find('div.bottom_panel');
+        var X=$('.slide_show').contents().find('div.bottom_panel');
         var nameOfBut="button.component_base."+nameButton;
         var idOfBut="component_base_"+nameButton;
         var nameID="button#"+idOfBut;
-        if($(X.find(nameOfBut)[0]).prop('id')!=idOfBut){
-            X.find(nameOfBut)[0].setAttribute("id", idOfBut);
+        var Y = X.find(nameOfBut);
+        for(var i=0;i<Y.length;i++){
+            if($(Y[i]).prop('id')!=idOfBut){
+                Y[i].setAttribute("id", idOfBut);
+            }
         }
-        X.find(nameID)[0].addEventListener('click',function(){
-            // status=0;
-            var checkTime=setInterval(function(){
-                changeToRuby();
-                if (status==0) clearInterval(checkTime);
-            } ,time);                        
-        });
+        var Z=X.find(nameID);
+        for(var i=0;i<Z.length;i++){     
+            Z[i].addEventListener('click',function(){
+                // status=0;
+                var checkTime=setInterval(function(){
+                    changeToRuby();
+                    if (status==0) clearInterval(checkTime);
+                } ,time);                        
+            });
+        }
     }
     function clickReturn(){//button yes, no of div.quiz_message_box
-        var B=$('#quiz2').contents().find('div.quiz_message_box');
-        B.find('button.component_base')[0].addEventListener('click',function(){
-            // status=0;
-            var checkTime=setInterval(function(){
-                clickEvent();
-                if(rowStatus==1) clickRow();
-                if (status==0) clearInterval(checkTime);;
-            } ,time); 
-        });
-        B.find('button.component_base')[1].addEventListener('click',function(){
-            // status=0;
-            var checkTime=setInterval(function(){
-                clickEvent();
-                if(rowStatus==1) clickRow();    
-                if (status==0) clearInterval(checkTime);          
-            } ,time); 
-        });
+        var X=$('.slide_show').contents().find('div.quiz_message_box');
+        if(X.html()==undefined) return;
+        var Y=X.find('button.component_base');
+        for(var i=0;i<Y.length;i++){
+            Y[i].addEventListener('click',function(){
+                var checkTime=setInterval(function(){
+                    if (status==0) clearInterval(checkTime);
+                    clickEvent();
+                    if(rowStatus==1) clickRow();                         
+                } ,time);
+            });
+        }
+        for(var i=1;i<Y.length;i++){
+            Y[1].addEventListener('click',function(){
+                var checkTime=setInterval(function(){
+                    if (status==0) clearInterval(checkTime);
+                    clickEvent();
+                    if(rowStatus==1) clickRow();                           
+                } ,time); 
+            });
+        }
     };
     function clickRow(){
-        var X=$('#quiz2').contents().find('button.component_base.show_slides');
-        X[0].addEventListener('click',function(){ 
-            rowStatus=0;
-            setTimeout(function(){
-                var T=$('#quiz2').contents().find('div.row');
-                N=T.length;
-                // console.log('N='+N);
-                for(i=0;i<N;i++){
-                    T[i].addEventListener('click',function(){
-                        status=0;
-                        checkTime=setInterval(function(){
-                            clickEvent();
-                            if (status==0) clearInterval(checkTime);
-                        } ,time); 
-                    });
-                } 
-            },100);
-                 
-        });    
+        var X=$('.slide_show').contents().find('button.component_base.show_slides');
+        for(var i=0;i<X.length;i++){
+            X[i].addEventListener('click',function(){
+                setTimeout(function(){
+                    var T=$('.slide_show').contents().find('div.row');
+                    N=T.length;
+                    for(i=0;i<N;i++){
+                        T[i].addEventListener('click',function(){
+                            checkTime=setInterval(function(){
+                                changeToRuby();
+                                if (status==0) clearInterval(checkTime);
+                            } ,time); 
+                        });
+                    } 
+                    rowStatus=0;
+                },100);      
+            });    
+        }
     }
     function clickEvent(){
         changeToRuby();
